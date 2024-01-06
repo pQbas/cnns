@@ -65,17 +65,20 @@ def train(net, epochs, trainloader, criterion, optimizer, device):
             max_scores, max_idx = outputs.max(dim=1)
             train_acc += torch.sum(max_idx == labels)/len(labels)
             
+
             #------------------------------------------------------
             #------------------------------------------------------
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
+            torch.cuda.empty_cache()
+
             # if i % 2000 == 1999:    # print every 2000 mini-batches
             #     print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f}')
             #     running_loss = 0.0
-        
+
         train_acc = train_acc.item()
-        print(f"it:{epoch}/{epochs}, Average Accuracy:", train_acc/i)
+        print(f"it:{epoch}/{epochs}, Average Accuracy:{train_acc/i:.3f}")
         accuracy_hist.append(train_acc/i)
 
     print('######### Finished Training ########')
