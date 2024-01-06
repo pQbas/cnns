@@ -39,7 +39,7 @@ def imshow(loader):
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
     plt.show()
 
-def train(net, epochs, trainloader, criterion, optimizer, device):
+def train(net, epochs, trainloader, criterion, optimizer, device, every_n_epochs=10):
     print("Device:", device)
     start_time = time.time()
     net = net.to(device)
@@ -78,8 +78,11 @@ def train(net, epochs, trainloader, criterion, optimizer, device):
             #     running_loss = 0.0
 
         train_acc = train_acc.item()
-        print(f"it:{epoch}/{epochs}, Average Accuracy:{train_acc/(i+1):.3f}")
         accuracy_hist.append(train_acc/(i+1))
+        
+        if epoch % every_n_epochs == (every_n_epochs-1):
+            print(f"it:{epoch}/{epochs}, Average Accuracy:{train_acc/(i+1):.3f}")
+
 
     print('######### Finished Training ########')
     end_time = time.time()
