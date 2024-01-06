@@ -9,6 +9,7 @@ import os
 
 
 def get_dataset(dataset_name, transform, batchsize):
+    
     if dataset_name == 'flowers102':
 
         data_transform = transforms.Compose(transform)
@@ -22,10 +23,34 @@ def get_dataset(dataset_name, transform, batchsize):
         test = torchvision.datasets.Flowers102(root="./datasets/", download=True,
                                                 transform=data_transform, split='test')
 
-        testloader = torch.utils.data.DataLoader(train, batch_size=batchsize,
+        testloader = torch.utils.data.DataLoader(test, batch_size=batchsize,
                                                 shuffle=True, num_workers=2)
 
         return trainloader, testloader
+    
+    if dataset_name == 'cifar10':
+
+        data_transform = transforms.Compose(transform)
+
+        train = torchvision.datasets.CIFAR10(root="./datasets/", 
+                                             train=True,
+                                             transform=data_transform,
+                                             download=True)
+
+        trainloader = torch.utils.data.DataLoader(train, batch_size=batchsize,
+                                                shuffle=True, num_workers=2)
+        
+        test = torchvision.datasets.CIFAR10(root="./datasets/", 
+                                             train=False,
+                                             transform=data_transform,
+                                             download=True)
+        
+        testloader = torch.utils.data.DataLoader(test, batch_size=batchsize,
+                                                shuffle=True, num_workers=2)
+
+        return trainloader, testloader
+        
+    
     else:
         return None
     
