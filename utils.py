@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 import time
+import os
+
 
 def get_dataset(dataset_name, transform, batchsize):
     if dataset_name == 'flowers102':
@@ -76,3 +78,23 @@ def get_default_device():
         return torch.device('cuda')
     else:
         return torch.device('cpu')
+    
+
+
+def create_directory(directory_path):
+    ####################################################################################
+    # Replace 'your_model_directory' with the desired path for your model directory
+    # create_directory(model_directory)
+    ####################################################################################
+
+    try:
+        # Create the directory
+        os.makedirs(directory_path)
+        print(f"Directory '{directory_path}' created successfully.")
+    except FileExistsError:
+        print(f"Directory '{directory_path}' already exists.")
+
+
+
+def save_model(path, model, weights='model.pth'):
+    torch.save(model.state_dict(), os.path.join(path,weights))
