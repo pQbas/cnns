@@ -86,7 +86,6 @@ def train(net, epochs, trainloader, criterion, optimizer, device, every_n_epochs
             outputs = net(inputs)
             loss = criterion(outputs, labels)
 
-
             max_scores, max_idx = outputs.max(dim=1)
             train_acc += torch.sum(max_idx == labels)/len(labels)
 
@@ -105,7 +104,7 @@ def train(net, epochs, trainloader, criterion, optimizer, device, every_n_epochs
         train_acc = train_acc.item()
         accuracy_hist.append(train_acc/(i+1))
         
-        if epoch % every_n_epochs == (every_n_epochs-1):
+        if epoch % every_n_epochs == 0:
             print(f"it:{epoch}/{epochs}, Average Accuracy:{train_acc/(i+1):.3f}")
 
 
