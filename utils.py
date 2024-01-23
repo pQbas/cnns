@@ -6,7 +6,7 @@ import numpy as np
 from tqdm import tqdm
 import time
 import os
-
+import gc
 
 def get_dataset(dataset_name, transform, batchsize):
     
@@ -65,6 +65,12 @@ def imshow(loader):
     plt.show()
 
 def train(net, epochs, trainloader, criterion, optimizer, device, every_n_epochs=10):
+    
+
+    for i in range(10):    
+        torch.cuda.empty_cache()
+        gc.collect()
+        
     print("Device:", device)
     start_time = time.time()
     net = net.to(device)
