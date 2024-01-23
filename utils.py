@@ -81,7 +81,7 @@ def train(net, epochs, trainloader, criterion, optimizer, device, every_n_epochs
         running_loss = 0.0
         train_acc = 0.0
 
-        for i, data in enumerate(trainloader, 0):
+        for i, data in enumerate(tqdm(trainloader, 0)):
             inputs, labels = data
             optimizer.zero_grad()
             #------------------------------------------------------
