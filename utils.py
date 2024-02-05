@@ -151,3 +151,104 @@ def create_directory(directory_path):
 
 def save_model(path, model, weights='model.pth'):
     torch.save(model.state_dict(), os.path.join(path,weights))
+
+
+'''
+WEIGHTS INITIALIZATION
+'''
+
+def initialize_weights(self):
+    for m in self.modules():
+        if isinstance(m, torch.nn.Conv2d):
+            torch.nn.init.kaiming_uniform_(m.weight)
+            if m.bias is not None:
+                torch.nn.init.constant_(m.bias, 0)
+                    
+        elif isinstance(m, torch.nn.BatchNorm2d):
+            torch.nn.init.constant_(m.weight, 1)
+            torch.nn.init.constant_(m.bias, 1)
+                
+        elif isinstance(m, torch.nn.Linear):
+            torch.nn.init.kaiming_uniform_(m.weight)
+            torch.nn.init.constant_(m.bias, 0)
+
+
+'''
+MODEL BLOCKS
+'''
+import torch.nn as nn
+
+class residual_block(nn.Module):
+    def __init__(self, input_features, output_features):
+        super(residual_block, self).__init__()
+
+        self.in_feat = input_features
+        self.out_feat = output_features
+                
+        if input_features == output_features:
+            self.Wi = [
+                nn.Conv2d(input_features, output_features, kernel_size=3, stride=1, padding=1, bias=False),
+                nn.ReLU(),
+                nn.Conv2d(output_features, output_features, kernel_size=3, stride=1, padding=1, bias=False)
+            ]
+            self.Ws = [
+                nn.Identity()
+            ]
+        
+        else:
+            self.Wi = [
+                nn.Conv2d(input_features, output_features, kernel_size=3, stride=2, padding=1, bias=False),
+                nn.ReLU(),
+                nn.Conv2d(output_features, output_features, kernel_size=3, stride=1, padding=1, bias=False)
+            ]
+            self.Ws = [
+                nn.Conv2d(input_features, output_features, kernel_size=1, stride=2, padding=0, bias=False)
+            ]
+        
+        self.F = nn.Sequential(*self.Wi)
+        self.I = nn.Sequential(*self.Ws)
+
+    def forward(self, x):
+        y = self.F(x) + self.I(x)  
+        return y
+    
+
+
+'''
+MODEL BUILDER
+'''
+
+def model_builder(model_definition):
+    layers = []
+    for layer in model_definition:
+        if layer['type'] == 'residual':
+            layers.append(
+                residual_block(layer['input'],
+                            layer['output']))
+            
+        if layer['type'] == 'conv':
+            layers.append(
+                nn.Conv2d(in_channels=layer['input'], 
+                        out_channels=layer['output'], 
+                        kernel_size=layer['kernel_size'], 
+                        stride=layer['stride'], 
+                        padding=layer['padding']))
+
+        if layer['type'] == 'maxpool':
+            layers.append(
+                nn.MaxPool2d(2,2))
+
+        if layer['type'] == 'adaptative':
+            layers.append(
+                nn.AdaptiveAvgPool2d((layer['output'])))
+
+        if layer['type'] == 'flatt':
+            layers.append(
+                nn.Flatten(start_dim=layer['dim']))
+
+        if layer['type'] == 'linear':
+            layers.append(
+                nn.Linear(layer['input'], layer['output']))
+        
+    return nn.Sequential(*layers)
+
